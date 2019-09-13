@@ -60,11 +60,11 @@ public class NewViewModel extends AndroidViewModel {
                             ),
                             gameStatUtil);
 
-                    playerAverageModels.add(playerAverageModel);
-
+                    return playerAverageModel;})
+                .map(playerAverageModel -> {
+                    databaseRepository.addPlayerData(playerAverageModel);
                     return playerAverageModel;
-
-          });
+                });
     }
 
     public List<PlayerAverageModel> getPlayerAverageModels() {
