@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.example.statsdontlie.OnFragmentInteractionListener;
 import com.example.statsdontlie.R;
+import com.example.statsdontlie.constants.BDLAppConstants;
 import com.example.statsdontlie.view.fragments.GameFragment;
 import com.example.statsdontlie.view.fragments.MenuFragment;
 import com.example.statsdontlie.view.fragments.ResultFragment;
@@ -26,14 +27,25 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     @SuppressLint("CheckResult")
     private void viewModelSetUp() {
         NewViewModel viewModel = NewViewModel.getInstance(this);
-        viewModel.callBDLResponseClient()
-          .subscribe(playerAverageModel -> {},
-                  throwable -> Log.d("TAG",throwable.toString()),
-                  () -> {
-              Log.d("TAG", "OnComplete - List<PlayerAverageModel> size: "
-                      + viewModel.getDatabaseRepository().getPlayerAverageModelList().size());
-                      displayMenuFragment();
-                  });
+
+        if(viewModel.getDatabaseRepository().getPlayerAverageModelList().size() < BDLAppConstants.PLAYER_ARRAY_CONSTANTS.length) {
+            Log.d("danny: inital list size",
+                    "=" + viewModel.getDatabaseRepository().getPlayerAverageModelList().size());
+            viewModel.callBDLResponseClient()
+                    .subscribe(playerAverageModel -> {
+                            },
+                            throwable -> Log.d("TAG", throwable.toString()),
+                            () -> {
+                                Log.d("TAG", "OnComplete - List<PlayerAverageModel> size: "
+                                        + viewModel.getDatabaseRepository().getPlayerAverageModelList().size());
+                                displayMenuFragment();
+                            });
+        }else{
+            displayMenuFragment();
+            Log.d("danny: database check",
+                    "database is populated with players to size of "
+                    + viewModel.getDatabaseRepository().getPlayerAverageModelList().size());
+        }
     }
 
     @Override

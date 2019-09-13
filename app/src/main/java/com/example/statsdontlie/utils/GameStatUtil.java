@@ -12,11 +12,11 @@ public class GameStatUtil {
     private double player3pMade = 0;
     private double player3pAttempted = 0;
     private double playerFpgAvg = 0;
-    private BDLResponse response;
+    private List<BDLResponse.GameStats> gameStats;
 
 
-    public GameStatUtil(BDLResponse response) {
-        this.response = response;
+    public GameStatUtil(List<BDLResponse.GameStats> gameStats) {
+        this.gameStats = gameStats;
     }
 
 
@@ -45,7 +45,7 @@ public class GameStatUtil {
     }
 
     public List<BDLResponse.GameStats> playerSeasonAverages() {
-        return response.getData();
+        return gameStats;
     }
 
     public void calculateOverallStats() {

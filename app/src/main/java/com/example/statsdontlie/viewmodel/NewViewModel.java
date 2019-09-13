@@ -19,16 +19,18 @@ import com.example.statsdontlie.utils.PlayerUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
+import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.functions.Action;
-import io.reactivex.internal.operators.completable.CompletableFromAction;
+
+import io.reactivex.Single;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+
 
 public class NewViewModel extends AndroidViewModel {
     private BDLDatabaseRepositoryImpl databaseRepository;
     private BDLRepository repository;
-    private List<PlayerAverageModel> playerAverageModels = new ArrayList<>();
 
     public NewViewModel(@NonNull Application application) {
         super(application);
@@ -50,28 +52,32 @@ public class NewViewModel extends AndroidViewModel {
 
         return Observable.fromIterable(playerIdLists)
                 .map(playerId -> repository.callBDLResponseClient(playerId))
-                .map(bdlResponseSingle -> bdlResponseSingle.blockingGet().getData())
-
-                .flatMapIterable(responses -> {
-
-
-                    for(BDLResponse s : responses){
-                    GameStatUtil gameStatUtil = new GameStatUtil(s);
-
+                .map(new Function<Single<BDLResponse>, List<BDLResponse.GameStats>>() {
+                    @Override
+                    public List<BDLResponse.GameStats> apply(Single<BDLResponse> bdlResponseSingle) throws Exception {
+                        return bdlResponseSingle.blockingGet().getData();
+                    }
+                })
+                .map(gameStats -> {
+                    GameStatUtil gameStatUtil = new GameStatUtil(gameStats);
                     PlayerModelCreator.calculatePlayerAvg(gameStatUtil);
 
                     PlayerAverageModel playerAverageModel = PlayerModelCreator.createPlayerModel(
-                            response.blockingGet().getData().get(0).getPlayer().getId(),
+                            gameStats.get(0).getPlayer().getId(),
                             PlayerUtil.getPlayerPhotoUrl(
-                                    response.blockingGet().getData().get(0).getPlayer().getFirstName(),
-                                    response.blockingGet().getData().get(0).getPlayer().getLastName()
+                                    gameStats.get(0).getPlayer().getFirstName(),
+                                    gameStats.get(0).getPlayer().getLastName()
                             ),
                             gameStatUtil);
-
-                    return playerAverageModel;})
-                .map(playerAverageModel -> {
-                    databaseRepository.addPlayerData(playerAverageModel);
                     return playerAverageModel;
+                })
+                .subscribeOn(Schedulers.computation())
+                .map(playerAverageModel -> {
+                    Completable.fromAction(() ->
+                            databaseRepository.addPlayerData(playerAverageModel))
+                            .subscribeOn(Schedulers.io())
+                            .subscribe();
+              return playerAverageModel;
                 });
     }
 

@@ -54,8 +54,8 @@ public class BDLDatabaseRepositoryImpl implements BDLDatabaseRepository {
     public List<PlayerAverageModel> getPlayerAverageModelList(){
         List<PlayerAverageModel> playerAverageModelList = new ArrayList<PlayerAverageModel>();
 
-        for(int i : BDLAppConstants.PLAYER_ARRAY_CONSTANTS){
-            playerAverageModelList.add(getPlayerAverageModelById(i));
+        for(NBAPlayer p : bdlDatabase.getNBAPlayerQueries().selectAll().executeAsList()){
+            playerAverageModelList.add(getPlayerAverageModelById(((int) p.getPlayerID())));
         }
         return playerAverageModelList;
     }
