@@ -33,4 +33,10 @@ VALUES(?,?,?,?,?,?,?,?,?,?);
 selectById:
 SELECT * FROM NBAPlayer WHERE playerID = ?;
 
+deletePlayerById:
+DELETE FROM NBAPlayer WHERE playerID = ?;
+
+deleteAllPlayers:
+DELETE FROM NBAPlayer;
+
 

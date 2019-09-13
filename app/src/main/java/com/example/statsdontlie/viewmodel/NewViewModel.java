@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.statsdontlie.constants.BDLAppConstants;
 import com.example.statsdontlie.localdb.BDLDatabaseRepositoryImpl;
+import com.example.statsdontlie.model.BDLResponse;
 import com.example.statsdontlie.model.PlayerAverageModel;
 import com.example.statsdontlie.network.RetrofitSingleton;
 import com.example.statsdontlie.repository.BDLRepository;
@@ -18,8 +19,11 @@ import com.example.statsdontlie.utils.PlayerUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
+import io.reactivex.functions.Action;
+import io.reactivex.internal.operators.completable.CompletableFromAction;
 
 public class NewViewModel extends AndroidViewModel {
     private BDLDatabaseRepositoryImpl databaseRepository;
@@ -46,9 +50,13 @@ public class NewViewModel extends AndroidViewModel {
 
         return Observable.fromIterable(playerIdLists)
                 .map(playerId -> repository.callBDLResponseClient(playerId))
+                .map(bdlResponseSingle -> bdlResponseSingle.blockingGet().getData())
 
-                .map(response -> {
-                    GameStatUtil gameStatUtil = new GameStatUtil(response.blockingGet());
+                .flatMapIterable(responses -> {
+
+
+                    for(BDLResponse s : responses){
+                    GameStatUtil gameStatUtil = new GameStatUtil(s);
 
                     PlayerModelCreator.calculatePlayerAvg(gameStatUtil);
 

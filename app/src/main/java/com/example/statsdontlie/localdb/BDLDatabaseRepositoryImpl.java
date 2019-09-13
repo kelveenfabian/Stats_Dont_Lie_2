@@ -60,4 +60,14 @@ public class BDLDatabaseRepositoryImpl implements BDLDatabaseRepository {
         return playerAverageModelList;
     }
 
+    @Override
+    public void deletePlayerById(int playerID) {
+        bdlDatabase.deletePlayerById(playerID);
+    }
+
+    @Override
+    public void deleteAllPlayers() {
+        bdlDatabase.deleteAllPlayers();
+    }
+
 }

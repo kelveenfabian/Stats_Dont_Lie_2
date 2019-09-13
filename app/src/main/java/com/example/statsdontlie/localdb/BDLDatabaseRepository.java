@@ -12,4 +12,8 @@ interface BDLDatabaseRepository {
 
     List<PlayerAverageModel> getPlayerAverageModelList();
 
+    void deletePlayerById(int playerID);
+
+    void deleteAllPlayers();
+
 }

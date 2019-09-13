@@ -59,4 +59,12 @@ public final class BDLDatabase {
         );
     }
 
+    public final void deletePlayerById(int playerId){
+        database.getNBAPlayerQueries().deletePlayerById(playerId);
+    }
+
+    public final void deleteAllPlayers(){
+        database.getNBAPlayerQueries().deleteAllPlayers();
+    }
+
 }
