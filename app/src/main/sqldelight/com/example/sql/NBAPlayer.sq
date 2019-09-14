@@ -1,5 +1,5 @@
 CREATE TABLE NBAPlayer (
-    playerID INTEGER NOT NULL UNIQUE PRIMARY KEY,
+    playerId INTEGER NOT NULL UNIQUE PRIMARY KEY,
     firstName TEXT NOT NULL,
     lastName TEXT NOT NULL,
     image TEXT NOT NULL,
@@ -16,7 +16,7 @@ SELECT * FROM NBAPlayer;
 
 insertOrReplace:
 INSERT OR REPLACE INTO NBAPlayer(
-    playerID,
+    playerId,
     firstName,
     lastName,
     image,
@@ -31,10 +31,10 @@ INSERT OR REPLACE INTO NBAPlayer(
 VALUES(?,?,?,?,?,?,?,?,?,?);
 
 selectById:
-SELECT * FROM NBAPlayer WHERE playerID = ?;
+SELECT * FROM NBAPlayer WHERE playerId = ?;
 
 deletePlayerById:
-DELETE FROM NBAPlayer WHERE playerID = ?;
+DELETE FROM NBAPlayer WHERE playerId = ?;
 
 deleteAllPlayers:
 DELETE FROM NBAPlayer;

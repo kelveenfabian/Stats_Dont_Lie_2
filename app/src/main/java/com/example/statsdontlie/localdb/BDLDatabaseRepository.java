@@ -1,5 +1,7 @@
 package com.example.statsdontlie.localdb;
 
+import android.graphics.Bitmap;
+
 import com.example.statsdontlie.model.PlayerAverageModel;
 
 import java.util.List;
@@ -15,5 +17,9 @@ interface BDLDatabaseRepository {
     void deletePlayerById(int playerID);
 
     void deleteAllPlayers();
+
+    void addPlayerImage(int playerId, byte[] image);
+
+    Bitmap getPlayerImageById(int playerId);
 
 }

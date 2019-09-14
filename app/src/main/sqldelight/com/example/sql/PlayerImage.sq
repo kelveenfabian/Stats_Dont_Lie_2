@@ -1,0 +1,23 @@
+CREATE TABLE PlayerImage (
+    playerId INTEGER NOT NULL UNIQUE PRIMARY KEY,
+    image BLOB
+);
+
+selectAllImages:
+SELECT * FROM PlayerImage;
+
+insertOrReplaceImage:
+INSERT OR REPLACE INTO PlayerImage(
+    playerId,
+    image
+)
+VALUES(?,?);
+
+selectImageById:
+SELECT * FROM PlayerImage WHERE playerId = ?;
+
+deleteImageById:
+DELETE FROM PlayerImage WHERE playerId = ?;
+
+deleteAllImages:
+DELETE FROM PlayerImage;

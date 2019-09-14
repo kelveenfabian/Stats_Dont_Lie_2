@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.example.sql.NBAPlayerQueries;
+import com.example.sql.PlayerImageQueries;
 import com.example.statsdontlie.Database;
 import com.example.statsdontlie.app.DatabaseImplKt;
 import com.example.statsdontlie.model.PlayerAverageModel;
@@ -17,6 +18,7 @@ public final class BDLDatabase {
     private static BDLDatabase instance;
     private static Database database;
     private static NBAPlayerQueries nbaPlayerQueries;
+    private static PlayerImageQueries playerImageQueries;
 
     private BDLDatabase(@NonNull Context context) {
         database = getDatabase(context);
@@ -44,9 +46,9 @@ public final class BDLDatabase {
         return nbaPlayerQueries;
     }
 
-    public final void addNBAPlayers(PlayerAverageModel playerAverageModel){
+    public final void addNBAPlayer(PlayerAverageModel playerAverageModel){
         database.getNBAPlayerQueries().insertOrReplace(
-                playerAverageModel.getPlayerID(),
+                playerAverageModel.getPlayerId(),
                 playerAverageModel.getFirstName(),
                 playerAverageModel.getLastName(),
                 playerAverageModel.getImage(),
@@ -67,4 +69,22 @@ public final class BDLDatabase {
         database.getNBAPlayerQueries().deleteAllPlayers();
     }
 
+    public final PlayerImageQueries getPlayerImageQueries(){
+        playerImageQueries = database.getPlayerImageQueries();
+        return playerImageQueries;
+    }
+
+    public final void addPlayerImage(int playerId, byte[] image){
+        database.getPlayerImageQueries().insertOrReplaceImage(
+                Long.valueOf(playerId),
+                image
+        );
+    }
+
+    public final byte[] getPlayerImage(int playerId){
+        return database
+                .getPlayerImageQueries()
+                .selectImageById(playerId)
+                .executeAsOne().getImage();
+    }
 }

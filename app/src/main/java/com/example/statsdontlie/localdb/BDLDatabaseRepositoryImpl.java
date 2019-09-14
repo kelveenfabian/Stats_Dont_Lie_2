@@ -1,17 +1,21 @@
 package com.example.statsdontlie.localdb;
 
 import android.app.Application;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.example.sql.NBAPlayer;
-import com.example.statsdontlie.constants.BDLAppConstants;
+import com.example.sql.PlayerImage;
+import com.example.statsdontlie.Database;
 import com.example.statsdontlie.model.PlayerAverageModel;
 import com.squareup.sqldelight.Query;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BDLDatabaseRepositoryImpl implements BDLDatabaseRepository {
+public class BDLDatabaseRepositoryImpl implements BDLDatabaseRepository{
     private static BDLDatabase bdlDatabase;
     private static BDLDatabaseRepositoryImpl instance;
 
@@ -28,7 +32,7 @@ public class BDLDatabaseRepositoryImpl implements BDLDatabaseRepository {
 
     @Override
     public void addPlayerData(PlayerAverageModel playerAverageModel) {
-        bdlDatabase.addNBAPlayers(playerAverageModel);
+        bdlDatabase.addNBAPlayer(playerAverageModel);
     }
 
     @Override
@@ -37,7 +41,7 @@ public class BDLDatabaseRepositoryImpl implements BDLDatabaseRepository {
 
         Log.d("danny",q.executeAsList().toString() + playerID);
         return new PlayerAverageModel(
-          q.executeAsOne().getPlayerID(),
+          q.executeAsOne().getPlayerId(),
           q.executeAsOne().getFirstName(),
           q.executeAsOne().getLastName(),
           q.executeAsOne().getImage(),
@@ -55,14 +59,14 @@ public class BDLDatabaseRepositoryImpl implements BDLDatabaseRepository {
         List<PlayerAverageModel> playerAverageModelList = new ArrayList<PlayerAverageModel>();
 
         for(NBAPlayer p : bdlDatabase.getNBAPlayerQueries().selectAll().executeAsList()){
-            playerAverageModelList.add(getPlayerAverageModelById(((int) p.getPlayerID())));
+            playerAverageModelList.add(getPlayerAverageModelById(((int) p.getPlayerId())));
         }
         return playerAverageModelList;
     }
 
     @Override
-    public void deletePlayerById(int playerID) {
-        bdlDatabase.deletePlayerById(playerID);
+    public void deletePlayerById(int playerId) {
+        bdlDatabase.deletePlayerById(playerId);
     }
 
     @Override
@@ -70,4 +74,24 @@ public class BDLDatabaseRepositoryImpl implements BDLDatabaseRepository {
         bdlDatabase.deleteAllPlayers();
     }
 
+    @Override
+    public void addPlayerImage(int playerId, byte[] image) {
+        bdlDatabase.addPlayerImage(playerId, image);
+    }
+
+    @Override
+    public Bitmap getPlayerImageById(int playerId) {
+        return BitmapFactory.decodeByteArray(
+                bdlDatabase.getPlayerImage(playerId),
+                0,
+                bdlDatabase.getPlayerImage(playerId).length);
+    }
+
+    public List<Bitmap> getPlayerImageList() {
+        List<Bitmap> playerImageList = new ArrayList<>();
+        for(NBAPlayer p : bdlDatabase.getNBAPlayerQueries().selectAll().executeAsList()) {
+            playerImageList.add(getPlayerImageById((int)p.getPlayerId()));
+        }
+        return playerImageList;
+    }
 }

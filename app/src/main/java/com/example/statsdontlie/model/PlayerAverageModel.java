@@ -2,7 +2,7 @@ package com.example.statsdontlie.model;
 
 public final class PlayerAverageModel {
 
-    private final Long playerID;
+    private final Long playerId;
     private final String firstName;
     private final String lastName;
     private final String image;
@@ -13,7 +13,7 @@ public final class PlayerAverageModel {
     private final double player3PM;
     private final double player3PA;
 
-    public PlayerAverageModel(Long playerID,
+    public PlayerAverageModel(Long playerId,
                               String firstName,
                               String lastName,
                               String image,
@@ -23,7 +23,7 @@ public final class PlayerAverageModel {
                               double playerDefRebAvg,
                               double player3PM,
                               double player3PA) {
-        this.playerID = playerID;
+        this.playerId = playerId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.image = image;
@@ -47,8 +47,8 @@ public final class PlayerAverageModel {
         return playerDefRebAvg;
     }
 
-    public Long getPlayerID() {
-        return playerID;
+    public Long getPlayerId() {
+        return playerId;
     }
 
     public String getFirstName() {

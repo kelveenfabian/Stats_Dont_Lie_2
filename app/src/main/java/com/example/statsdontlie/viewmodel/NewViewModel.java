@@ -2,6 +2,9 @@ package com.example.statsdontlie.viewmodel;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.graphics.Bitmap;
+
+import androidx.core.util.Pair;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.annotation.NonNull;
@@ -9,11 +12,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.statsdontlie.constants.BDLAppConstants;
 import com.example.statsdontlie.localdb.BDLDatabaseRepositoryImpl;
-import com.example.statsdontlie.model.BDLResponse;
 import com.example.statsdontlie.model.PlayerAverageModel;
 import com.example.statsdontlie.network.RetrofitSingleton;
 import com.example.statsdontlie.repository.BDLRepository;
 import com.example.statsdontlie.utils.GameStatUtil;
+import com.example.statsdontlie.utils.ImageUtil;
 import com.example.statsdontlie.utils.PlayerModelCreator;
 import com.example.statsdontlie.utils.PlayerUtil;
 
@@ -23,8 +26,8 @@ import java.util.List;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 
-import io.reactivex.Single;
-import io.reactivex.functions.Function;
+import io.reactivex.Observer;
+import io.reactivex.internal.operators.completable.CompletableFromAction;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -52,16 +55,10 @@ public class NewViewModel extends AndroidViewModel {
 
         return Observable.fromIterable(playerIdLists)
                 .map(playerId -> repository.callBDLResponseClient(playerId))
-                .map(new Function<Single<BDLResponse>, List<BDLResponse.GameStats>>() {
-                    @Override
-                    public List<BDLResponse.GameStats> apply(Single<BDLResponse> bdlResponseSingle) throws Exception {
-                        return bdlResponseSingle.blockingGet().getData();
-                    }
-                })
+                .map(bdlResponseSingle -> bdlResponseSingle.blockingGet().getData())
                 .map(gameStats -> {
                     GameStatUtil gameStatUtil = new GameStatUtil(gameStats);
                     PlayerModelCreator.calculatePlayerAvg(gameStatUtil);
-
                     PlayerAverageModel playerAverageModel = PlayerModelCreator.createPlayerModel(
                             gameStats.get(0).getPlayer().getId(),
                             PlayerUtil.getPlayerPhotoUrl(
@@ -72,22 +69,37 @@ public class NewViewModel extends AndroidViewModel {
                     return playerAverageModel;
                 })
                 .subscribeOn(Schedulers.computation())
-                .map(playerAverageModel -> {
-                    Completable.fromAction(() ->
-                            databaseRepository.addPlayerData(playerAverageModel))
+                .map(playerAverageModel -> new Pair<PlayerAverageModel,byte[]>(
+                        playerAverageModel,ImageUtil.getBitmapAsByteArray(
+                        ImageUtil.getBitmapFromURL(
+                                playerAverageModel.getImage()))))
+                .subscribeOn(Schedulers.computation())
+                .map(pair -> {
+                    Completable.fromAction(() -> {
+                        databaseRepository.addPlayerData(pair.first);
+                        databaseRepository.addPlayerImage(
+                                pair.first.getPlayerId().intValue(),
+                                pair.second);
+                    })
                             .subscribeOn(Schedulers.io())
                             .subscribe();
-              return playerAverageModel;
+                    return pair.first;
                 });
-    }
+}
 
-    public List<PlayerAverageModel> getPlayerAverageModels() {
+    public List<PlayerAverageModel> getPlayerAverageModelList() {
         return databaseRepository.getPlayerAverageModelList();
     }
 
-    public BDLDatabaseRepositoryImpl getDatabaseRepository(){
-        return databaseRepository;
+    public Bitmap getPlayerImageById(int playerId) {
+        return databaseRepository.getPlayerImageById(playerId);
     }
+
+    public List<Bitmap> getPlayerImageList() {
+        return databaseRepository.getPlayerImageList();
+    }
+
+
 }
 
 

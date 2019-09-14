@@ -16,11 +16,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.statsdontlie.Animations;
+import com.example.statsdontlie.Database;
 import com.example.statsdontlie.OnFragmentInteractionListener;
 import com.example.statsdontlie.R;
 import com.example.statsdontlie.constants.BDLAppConstants;
 import com.example.statsdontlie.model.PlayerAverageModel;
 import com.example.statsdontlie.utils.GameJudger;
+import com.example.statsdontlie.utils.ImageUtil;
 import com.example.statsdontlie.utils.PlayerUtil;
 import com.example.statsdontlie.utils.RandomNumberGenerator;
 import com.example.statsdontlie.viewmodel.NewViewModel;
@@ -80,7 +82,7 @@ public class GameFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         findViews(view);
         setViewModel();
-        this.playerAverageModels = viewModel.getPlayerAverageModels();
+        this.playerAverageModels = viewModel.getPlayerAverageModelList();
         setCountDownTimer();
 
         setRandomPlayers(playerAverageModels);
@@ -137,7 +139,7 @@ public class GameFragment extends Fragment {
     }
 //
     private void observeViewModel() {
-            this.playerAverageModels = viewModel.getPlayerAverageModels();
+            this.playerAverageModels = viewModel.getPlayerAverageModelList();
     }
 
     private void setRandomPlayers(List<PlayerAverageModel> playerAverageModels) {
@@ -151,12 +153,14 @@ public class GameFragment extends Fragment {
 
         Log.d(TAG, "setViews: " + player1.toString());
         Log.d(TAG, "setViews: " + player2.toString());
-        Picasso.get()
-          .load(PlayerUtil.getPlayerPhotoUrl(player1.getFirstName(), player1.getLastName()))
-          .into(playerOneImage);
-        Picasso.get()
-          .load(PlayerUtil.getPlayerPhotoUrl(player2.getFirstName(), player2.getLastName()))
-          .into(playerTwoImage);
+//        Picasso.get()
+//          .load(PlayerUtil.getPlayerPhotoUrl(player1.getFirstName(), player1.getLastName()))
+//          .into(playerOneImage);
+//        Picasso.get()
+//          .load(PlayerUtil.getPlayerPhotoUrl(player2.getFirstName(), player2.getLastName()))
+//          .into(playerTwoImage);
+        playerOneImage.setImageBitmap(viewModel.getPlayerImageById(player1.getPlayerId().intValue()));
+        playerTwoImage.setImageBitmap(viewModel.getPlayerImageById(player2.getPlayerId().intValue()));
         getRandomQuestion();
 //        playerOneCardView.startAnimation(Animations.getFadeIn(playerOneCardView));
 //        playerTwoCardView.startAnimation(Animations.getFadeIn(playerTwoCardView));
